@@ -30,15 +30,12 @@ export class SpriteController {
     this.animsRegistered = true;
 
     const mgr = this.sprite.scene.anims;
-    const FRAME_W = 64;
-    const FRAME_H = 64;
     const COLS = 4;
 
     const framesForRow = (textureKey: string, row: number, count: number) =>
       Array.from({ length: count }, (_, col) => ({
         key: textureKey,
         frame: row * COLS + col,
-        // Phaser needs integer frame indices when using addCanvas textures
       }));
 
     for (let dir = 0; dir < 8; dir++) {
@@ -54,16 +51,6 @@ export class SpriteController {
         frameRate: 10,
         repeat: -1,
       });
-    }
-
-    // Set frame size so Phaser knows how to slice the canvas texture
-    const idleTex = this.sprite.scene.textures.get('player_idle');
-    const runTex = this.sprite.scene.textures.get('player_run');
-    for (let i = 0; i < 8 * COLS; i++) {
-      const row = Math.floor(i / COLS);
-      const col = i % COLS;
-      idleTex.add(i, 0, col * FRAME_W, row * FRAME_H, FRAME_W, FRAME_H);
-      runTex.add(i, 0, col * FRAME_W, row * FRAME_H, FRAME_W, FRAME_H);
     }
   }
 

@@ -53,7 +53,7 @@ function makeSheet(scene: Phaser.Scene, key: string, bodyColor: number, dotColor
     }
   }
 
-  scene.textures.addCanvas(key, canvas);
+  scene.textures.addSpriteSheet(key, canvas, { frameWidth: FRAME_W, frameHeight: FRAME_H });
 }
 
 export class BootScene extends Phaser.Scene {
