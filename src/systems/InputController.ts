@@ -11,6 +11,7 @@ export class InputController {
     A: Phaser.Input.Keyboard.Key;
     S: Phaser.Input.Keyboard.Key;
     D: Phaser.Input.Keyboard.Key;
+    Space: Phaser.Input.Keyboard.Key;
   };
   private attackPressed = false;
 
@@ -21,6 +22,7 @@ export class InputController {
       A: kb.addKey(Phaser.Input.Keyboard.KeyCodes.A),
       S: kb.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       D: kb.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+      Space: kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
     };
     scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       if (pointer.leftButtonDown()) this.attackPressed = true;
@@ -52,5 +54,9 @@ export class InputController {
     const was = this.attackPressed;
     this.attackPressed = false;
     return was;
+  }
+
+  consumeDodge(): boolean {
+    return Phaser.Input.Keyboard.JustDown(this.keys.Space);
   }
 }
