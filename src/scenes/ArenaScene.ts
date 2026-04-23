@@ -57,6 +57,11 @@ export class ArenaScene extends Phaser.Scene {
     this.hudGfx.fillRect(20, 40, 200, 10);
     this.hudGfx.fillStyle(0xffeb3b);
     this.hudGfx.fillRect(20, 40, 200 * stPct, 10);
+
+    if (this.player.isBlocking) {
+      this.hudGfx.fillStyle(this.player.isParrying ? 0xffd700 : 0x42a5f5);
+      this.hudGfx.fillRect(20, 58, 24, 14);
+    }
   }
 
   private drawArena(): void {
