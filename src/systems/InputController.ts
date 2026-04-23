@@ -12,6 +12,7 @@ export class InputController {
     S: Phaser.Input.Keyboard.Key;
     D: Phaser.Input.Keyboard.Key;
   };
+  private attackPressed = false;
 
   constructor(scene: Phaser.Scene) {
     const kb = scene.input.keyboard!;
@@ -21,6 +22,9 @@ export class InputController {
       S: kb.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       D: kb.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     };
+    scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (pointer.leftButtonDown()) this.attackPressed = true;
+    });
   }
 
   getMoveVector(): MoveVector {
@@ -32,7 +36,6 @@ export class InputController {
     if (this.keys.W.isDown) y -= 1;
     if (this.keys.S.isDown) y += 1;
 
-    // Normalize so diagonal isn't faster
     if (x !== 0 && y !== 0) {
       x *= Math.SQRT1_2;
       y *= Math.SQRT1_2;
@@ -43,5 +46,11 @@ export class InputController {
 
   isMoving(): boolean {
     return this.keys.W.isDown || this.keys.A.isDown || this.keys.S.isDown || this.keys.D.isDown;
+  }
+
+  consumeAttack(): boolean {
+    const was = this.attackPressed;
+    this.attackPressed = false;
+    return was;
   }
 }
