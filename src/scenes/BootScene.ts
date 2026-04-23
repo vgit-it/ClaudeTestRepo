@@ -70,6 +70,7 @@ export class BootScene extends Phaser.Scene {
   create(): void {
     makeSheet(this, 'player_idle', 0xe8f5e9, 0xffffff);
     makeSheet(this, 'player_run', 0xc8e6c9, 0xffeb3b);
+    makeSheet(this, 'enemy_idle', 0xffcdd2, 0xff1744);
 
     this.scene.start('ArenaScene');
   }
