@@ -3,9 +3,18 @@ import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 
 const ATTACK_DAMAGE = 25;
+const BLOCK_DAMAGE_MULT = 0.3; // 30% of hit damage passes through a block
 
 export class CombatSystem {
   private hitDealt = false;
+
+  // Called by Step 5 enemy attack logic instead of player.takeDamage() directly
+  resolvePlayerHit(player: Player, rawDamage: number): void {
+    if (player.isParrying)   { player.notifyParrySuccess(); return; }
+    if (player.isBlocking)   { player.takeDamage(rawDamage * BLOCK_DAMAGE_MULT); return; }
+    if (player.isInvincible) { return; }
+    player.takeDamage(rawDamage);
+  }
 
   update(player: Player, enemies: Enemy[]): void {
     const rect = player.getAttackRect();
