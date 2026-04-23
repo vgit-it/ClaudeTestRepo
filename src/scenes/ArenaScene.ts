@@ -21,7 +21,7 @@ export class ArenaScene extends Phaser.Scene {
   create(): void {
     this.drawArena();
     this.player = new Player(this, ARENA_CX, ARENA_CY);
-    this.enemies = [new Enemy(this, ARENA_CX + 160, ARENA_CY)];
+    this.enemies = [new Enemy(this, ARENA_CX + 160, ARENA_CY, this.player)];
     this.combatSystem = new CombatSystem();
     this.hudGfx = this.add.graphics();
     this.debugGfx = this.add.graphics();
@@ -38,9 +38,16 @@ export class ArenaScene extends Phaser.Scene {
   private drawDebugHitbox(): void {
     this.debugGfx.clear();
     const rect = this.player.getAttackRect();
-    if (!rect) return;
-    this.debugGfx.lineStyle(2, 0xff5722, 0.8);
-    this.debugGfx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+    if (rect) {
+      this.debugGfx.lineStyle(2, 0xff5722, 0.8);
+      this.debugGfx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+    }
+    for (const enemy of this.enemies) {
+      const eRect = enemy.getAttackRect();
+      if (!eRect) continue;
+      this.debugGfx.lineStyle(2, 0xe91e63, 0.8);
+      this.debugGfx.strokeRect(eRect.x, eRect.y, eRect.width, eRect.height);
+    }
   }
 
   private drawHud(): void {
