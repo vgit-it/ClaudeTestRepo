@@ -15,10 +15,11 @@ export class InputController {
     S: Phaser.Input.Keyboard.Key;
     D: Phaser.Input.Keyboard.Key;
     Space: Phaser.Input.Keyboard.Key;
+    J: Phaser.Input.Keyboard.Key;
+    K: Phaser.Input.Keyboard.Key;
   };
-  private attackPressed = false;
-  private rmbDownAt = -1;
-  private rmbParryConsumed = false;
+  private kDownAt = -1;
+  private kParryConsumed = false;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -29,19 +30,17 @@ export class InputController {
       S: kb.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       D: kb.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       Space: kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      J: kb.addKey(Phaser.Input.Keyboard.KeyCodes.J),
+      K: kb.addKey(Phaser.Input.Keyboard.KeyCodes.K),
     };
-    scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      if (pointer.leftButtonDown()) this.attackPressed = true;
-      if (pointer.rightButtonDown()) {
-        this.rmbDownAt = scene.time.now;
-        this.rmbParryConsumed = false;
-      }
+    this.keys.K.on('down', () => {
+      this.kDownAt = scene.time.now;
+      this.kParryConsumed = false;
     });
-    const clearRmb = () => { this.rmbDownAt = -1; this.rmbParryConsumed = false; };
-    scene.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      if (!pointer.rightButtonDown()) clearRmb();
+    this.keys.K.on('up', () => {
+      this.kDownAt = -1;
+      this.kParryConsumed = false;
     });
-    scene.input.on('pointerout', clearRmb);
   }
 
   getMoveVector(): MoveVector {
@@ -66,9 +65,7 @@ export class InputController {
   }
 
   consumeAttack(): boolean {
-    const was = this.attackPressed;
-    this.attackPressed = false;
-    return was;
+    return Phaser.Input.Keyboard.JustDown(this.keys.J);
   }
 
   consumeDodge(): boolean {
@@ -76,13 +73,13 @@ export class InputController {
   }
 
   consumeParry(): boolean {
-    if (this.rmbDownAt === -1 || this.rmbParryConsumed) return false;
-    if (this.scene.time.now - this.rmbDownAt >= PARRY_TAP_MS) return false;
-    this.rmbParryConsumed = true;
+    if (this.kDownAt === -1 || this.kParryConsumed) return false;
+    if (this.scene.time.now - this.kDownAt >= PARRY_TAP_MS) return false;
+    this.kParryConsumed = true;
     return true;
   }
 
   isBlockHeld(): boolean {
-    return this.rmbDownAt !== -1;
+    return this.keys.K.isDown;
   }
 }
