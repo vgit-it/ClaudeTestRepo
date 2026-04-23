@@ -1,4 +1,4 @@
-export type CombatState = 'idle' | 'windup' | 'active' | 'recovery' | 'staggered';
+export type CombatState = 'idle' | 'windup' | 'active' | 'recovery' | 'staggered' | 'dodging';
 
 export class Character {
   hp: number;
