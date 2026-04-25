@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Character } from './Character';
 import { Player } from './Player';
+import { SpriteController } from '../systems/SpriteController';
 import type { Direction } from '../systems/SpriteController';
 
 const HIT_FLASH_MS = 200;
@@ -64,6 +65,7 @@ export class Enemy extends Character {
   readonly sprite: Phaser.Physics.Arcade.Sprite;
   readonly params: EnemyParams;
   private readonly player: Player;
+  private spriteCtrl: SpriteController;
   private hpBarGfx: Phaser.GameObjects.Graphics;
   private hitTimer = 0;
   private facing: Direction = 2; // default face East
@@ -74,7 +76,8 @@ export class Enemy extends Character {
     super(params.maxHp, 0);
     this.player = player;
     this.params = params;
-    this.sprite = scene.physics.add.sprite(x, y, 'enemy_idle', 0);
+    this.sprite = scene.physics.add.sprite(x, y, 'char_walk', 0);
+    this.spriteCtrl = new SpriteController(this.sprite);
     this.hpBarGfx = scene.add.graphics();
     this.drawHpBar();
   }
@@ -102,7 +105,7 @@ export class Enemy extends Character {
     super.takeDamage(amount);
     this.hitTimer = HIT_FLASH_MS;
     if (!this.isAlive()) {
-      this.sprite.setTint(0x555555);
+      this.spriteCtrl.playAction('death');
       this.sprite.setActive(false);
       this.hpBarGfx.setVisible(false);
     }
@@ -154,13 +157,16 @@ export class Enemy extends Character {
 
     if (dist <= this.params.attackRange && this.cooldownTimer <= 0) {
       this.sprite.setVelocity(0, 0);
+      this.spriteCtrl.update(0, 0, false);
       this.combatState = 'windup';
       this.stateTimer = this.params.telegraphMs;
       this.attackHitDealt = false;
     } else if (dist <= this.params.chaseRange) {
       this.sprite.setVelocity((dx / dist) * this.params.moveSpeed, (dy / dist) * this.params.moveSpeed);
+      this.spriteCtrl.update(dx / dist, dy / dist, true);
     } else {
       this.sprite.setVelocity(0, 0);
+      this.spriteCtrl.update(0, 0, false);
     }
   }
 
@@ -175,15 +181,21 @@ export class Enemy extends Character {
       this.sprite.setTint(0xff4444);
     } else if (this.combatState === 'windup') {
       this.sprite.setTint(0xffeb3b);
+      this.spriteCtrl.setDir(this.facing);
+      this.spriteCtrl.playAction('atk');
     } else if (this.combatState === 'active') {
       this.sprite.setTint(0xff5722);
+      this.spriteCtrl.setDir(this.facing);
+      this.spriteCtrl.playAction('atk');
+    } else if (this.combatState === 'recovery') {
+      this.sprite.setTint(0xffffff);
+      this.spriteCtrl.setDir(this.facing);
+      this.spriteCtrl.playAction('atk');
     } else if (this.combatState === 'staggered') {
       this.sprite.setTint(0x9c27b0);
+      this.spriteCtrl.update(0, 0, false);
     } else {
       this.sprite.setTint(0xffffff);
-    }
-    if (this.combatState === 'idle') {
-      this.sprite.setFrame(this.facing * 4);
     }
   }
 

@@ -44,7 +44,7 @@ export class Player extends Character {
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(100, 100);
-    this.sprite = scene.physics.add.sprite(x, y, 'player_idle', 0);
+    this.sprite = scene.physics.add.sprite(x, y, 'char_walk', 0);
     this.sprite.setCollideWorldBounds(true);
     this.input = new InputController(scene);
     this.spriteCtrl = new SpriteController(this.sprite);
@@ -96,14 +96,19 @@ export class Player extends Character {
         this.stamina = Math.max(0, this.stamina - BLOCK_DRAIN * (delta / 1000));
         const { x, y } = this.input.getMoveVector();
         this.sprite.setVelocity(x * BLOCK_MOVE_SPEED, y * BLOCK_MOVE_SPEED);
-        this.spriteCtrl.update(x, y, this.input.isMoving());
+        if (x !== 0 || y !== 0) this.spriteCtrl.update(x, y, false);
+        this.spriteCtrl.playAction('block');
       }
     } else if (this.combatState === 'parrying') {
       this.sprite.setVelocity(0, 0);
+      this.spriteCtrl.playAction('block');
     } else if (this.combatState === 'dodging') {
       this.sprite.setVelocity(this.dodgeVx, this.dodgeVy);
+      this.spriteCtrl.update(this.dodgeVx / DODGE_SPEED, this.dodgeVy / DODGE_SPEED, true);
     } else {
+      // windup / active / recovery
       this.sprite.setVelocity(0, 0);
+      this.spriteCtrl.playAction('atk');
     }
 
     this.applyVisuals();
