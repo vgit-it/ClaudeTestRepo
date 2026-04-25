@@ -36,6 +36,7 @@ const DIR_OFFSETS = [
 export class Player extends Character {
   readonly sprite: Phaser.Physics.Arcade.Sprite;
   private readonly spriteScale: number;
+  private readonly gameScale: number;
   private input: InputController;
   private spriteCtrl: SpriteController;
   private dodgeVx = 0;
@@ -43,9 +44,10 @@ export class Player extends Character {
   private iframeTimer = 0;
   private parrySuccessTimer = 0;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, spriteScale = 1) {
+  constructor(scene: Phaser.Scene, x: number, y: number, spriteScale = 1, gameScale = 1) {
     super(100, 100);
     this.spriteScale = spriteScale;
+    this.gameScale = gameScale;
     this.sprite = scene.physics.add.sprite(x, y, 'char_walk', 0);
     this.sprite.setScale(spriteScale);
     this.input = new InputController(scene);
@@ -74,7 +76,7 @@ export class Player extends Character {
 
     if (this.combatState === 'idle') {
       const { x, y } = this.input.getMoveVector();
-      this.sprite.setVelocity(x * MOVE_SPEED, y * MOVE_SPEED);
+      this.sprite.setVelocity(x * MOVE_SPEED * this.gameScale, y * MOVE_SPEED * this.gameScale);
       this.spriteCtrl.update(x, y, this.input.isMoving());
 
       if (this.input.consumeParry() && this.stamina >= PARRY_COST) {
@@ -97,7 +99,7 @@ export class Player extends Character {
       } else {
         this.stamina = Math.max(0, this.stamina - BLOCK_DRAIN * (delta / 1000));
         const { x, y } = this.input.getMoveVector();
-        this.sprite.setVelocity(x * BLOCK_MOVE_SPEED, y * BLOCK_MOVE_SPEED);
+        this.sprite.setVelocity(x * BLOCK_MOVE_SPEED * this.gameScale, y * BLOCK_MOVE_SPEED * this.gameScale);
         if (x !== 0 || y !== 0) this.spriteCtrl.update(x, y, false);
         this.spriteCtrl.playAction('block');
       }
@@ -106,7 +108,7 @@ export class Player extends Character {
       this.spriteCtrl.playAction('block');
     } else if (this.combatState === 'dodging') {
       this.sprite.setVelocity(this.dodgeVx, this.dodgeVy);
-      this.spriteCtrl.update(this.dodgeVx / DODGE_SPEED, this.dodgeVy / DODGE_SPEED, true);
+      this.spriteCtrl.update(this.dodgeVx / (DODGE_SPEED * this.gameScale), this.dodgeVy / (DODGE_SPEED * this.gameScale), true);
     } else {
       // windup / active / recovery
       this.sprite.setVelocity(0, 0);
@@ -136,12 +138,12 @@ export class Player extends Character {
     this.stamina -= DODGE_COST;
     const mv = this.input.getMoveVector();
     if (mv.x !== 0 || mv.y !== 0) {
-      this.dodgeVx = mv.x * DODGE_SPEED;
-      this.dodgeVy = mv.y * DODGE_SPEED;
+      this.dodgeVx = mv.x * DODGE_SPEED * this.gameScale;
+      this.dodgeVy = mv.y * DODGE_SPEED * this.gameScale;
     } else {
       const off = DIR_OFFSETS[this.spriteCtrl.getDir()];
-      this.dodgeVx = -off.x * DODGE_SPEED;
-      this.dodgeVy = -off.y * DODGE_SPEED;
+      this.dodgeVx = -off.x * DODGE_SPEED * this.gameScale;
+      this.dodgeVy = -off.y * DODGE_SPEED * this.gameScale;
     }
     this.combatState = 'dodging';
     this.stateTimer = DODGE_MS;
