@@ -15,6 +15,7 @@ export class ArenaScene extends Phaser.Scene {
   private arenaCx!: number;
   private arenaCy!: number;
   private arenaRadius!: number;
+  private hitboxVisible = false;
 
   constructor() {
     super({ key: 'ArenaScene' });
@@ -37,12 +38,25 @@ export class ArenaScene extends Phaser.Scene {
     this.player = new Player(this, this.arenaCx, this.arenaCy);
     this.enemies = [new Enemy(this, this.arenaCx + 160, this.arenaCy, this.player)];
 
-    this.player.sprite.setScale(imgScale * 2.5);
-    for (const enemy of this.enemies) enemy.sprite.setScale(imgScale * 2.5);
+    this.player.sprite.setScale(imgScale * 1);
+    for (const enemy of this.enemies) enemy.sprite.setScale(imgScale * 1);
 
     this.combatSystem = new CombatSystem();
     this.hudGfx = this.add.graphics();
     this.debugGfx = this.add.graphics();
+
+    const btn = this.add.text(W - 10, 10, 'HBX: OFF', {
+      fontSize: '14px',
+      color: '#ffffff',
+      backgroundColor: '#333333cc',
+      padding: { x: 8, y: 5 },
+    }).setOrigin(1, 0).setDepth(10).setInteractive({ useHandCursor: true });
+
+    btn.on('pointerdown', () => {
+      this.hitboxVisible = !this.hitboxVisible;
+      btn.setText(this.hitboxVisible ? 'HBX: ON' : 'HBX: OFF');
+      btn.setStyle({ backgroundColor: this.hitboxVisible ? '#1a6b1acc' : '#333333cc' });
+    });
   }
 
   update(_time: number, delta: number): void {
@@ -77,15 +91,30 @@ export class ArenaScene extends Phaser.Scene {
 
   private drawDebugHitbox(): void {
     this.debugGfx.clear();
+    if (!this.hitboxVisible) return;
+
+    // Hurtboxes — sprite.getBounds() is what CombatSystem uses for hit detection
+    const pb = this.player.sprite.getBounds();
+    this.debugGfx.lineStyle(2, 0x00e676, 0.9);
+    this.debugGfx.strokeRect(pb.x, pb.y, pb.width, pb.height);
+
+    for (const enemy of this.enemies) {
+      if (!enemy.isAlive()) continue;
+      const eb = enemy.sprite.getBounds();
+      this.debugGfx.lineStyle(2, 0x40c4ff, 0.9);
+      this.debugGfx.strokeRect(eb.x, eb.y, eb.width, eb.height);
+    }
+
+    // Attack hitboxes — projected rectangle in front of the attacker
     const rect = this.player.getAttackRect();
     if (rect) {
-      this.debugGfx.lineStyle(2, 0xff5722, 0.8);
+      this.debugGfx.lineStyle(2, 0xff5722, 0.9);
       this.debugGfx.strokeRect(rect.x, rect.y, rect.width, rect.height);
     }
     for (const enemy of this.enemies) {
       const eRect = enemy.getAttackRect();
       if (!eRect) continue;
-      this.debugGfx.lineStyle(2, 0xe91e63, 0.8);
+      this.debugGfx.lineStyle(2, 0xe91e63, 0.9);
       this.debugGfx.strokeRect(eRect.x, eRect.y, eRect.width, eRect.height);
     }
   }
