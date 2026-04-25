@@ -15,6 +15,7 @@ export class ArenaScene extends Phaser.Scene {
   private arenaCx!: number;
   private arenaCy!: number;
   private arenaRadius!: number;
+  private imgScale!: number;
   private hitboxVisible = false;
 
   constructor() {
@@ -28,7 +29,8 @@ export class ArenaScene extends Phaser.Scene {
     this.arenaCy = H / 2;
 
     // portrait: fill width; landscape: fill height — single formula covers both
-    const imgScale = Math.min(W, H) / IMAGE_SIZE * 1.5;
+    this.imgScale = Math.min(W, H) / IMAGE_SIZE * 1.5;
+    const imgScale = this.imgScale;
     this.arenaRadius = (IMAGE_SIZE / 2) * CIRCLE_FRACTION * imgScale;
 
     const bg = this.add.image(this.arenaCx, this.arenaCy, 'arena_bg');
@@ -36,15 +38,15 @@ export class ArenaScene extends Phaser.Scene {
     bg.setDepth(-1);
 
     const spriteScale = imgScale * 1.25;
-    this.player = new Player(this, this.arenaCx, this.arenaCy, spriteScale);
-    this.enemies = [new Enemy(this, this.arenaCx + 160, this.arenaCy, this.player, undefined, spriteScale)];
+    this.player = new Player(this, this.arenaCx, this.arenaCy, spriteScale, imgScale);
+    this.enemies = [new Enemy(this, this.arenaCx + 160 * imgScale, this.arenaCy, this.player, undefined, spriteScale, imgScale)];
 
     this.combatSystem = new CombatSystem();
     this.hudGfx = this.add.graphics();
     this.debugGfx = this.add.graphics();
 
     const btn = this.add.text(W - 10, 10, 'HBX: OFF', {
-      fontSize: '14px',
+      fontSize: `${Math.round(14 * imgScale)}px`,
       color: '#ffffff',
       backgroundColor: '#333333cc',
       padding: { x: 8, y: 5 },
@@ -55,6 +57,10 @@ export class ArenaScene extends Phaser.Scene {
       btn.setText(this.hitboxVisible ? 'HBX: ON' : 'HBX: OFF');
       btn.setStyle({ backgroundColor: this.hitboxVisible ? '#1a6b1acc' : '#333333cc' });
     });
+
+    const onResize = () => this.scene.restart();
+    this.scale.on('resize', onResize, this);
+    this.events.once('shutdown', () => this.scale.off('resize', onResize, this));
   }
 
   update(_time: number, delta: number): void {
@@ -119,22 +125,31 @@ export class ArenaScene extends Phaser.Scene {
 
   private drawHud(): void {
     this.hudGfx.clear();
+    const s = this.imgScale;
+    const margin = 20 * s;
+    const barW   = 200 * s;
+    const hpH    = 14 * s;
+    const stH    = 10 * s;
+    const gap    = 6 * s;
+    const hpY    = margin;
+    const stY    = hpY + hpH + gap;
+    const blockY = stY + stH + gap;
 
     const hpPct = this.player.hp / this.player.maxHp;
     this.hudGfx.fillStyle(0x333333);
-    this.hudGfx.fillRect(20, 20, 200, 14);
+    this.hudGfx.fillRect(margin, hpY, barW, hpH);
     this.hudGfx.fillStyle(0xe53935);
-    this.hudGfx.fillRect(20, 20, 200 * hpPct, 14);
+    this.hudGfx.fillRect(margin, hpY, barW * hpPct, hpH);
 
     const stPct = this.player.stamina / this.player.maxStamina;
     this.hudGfx.fillStyle(0x333333);
-    this.hudGfx.fillRect(20, 40, 200, 10);
+    this.hudGfx.fillRect(margin, stY, barW, stH);
     this.hudGfx.fillStyle(0xffeb3b);
-    this.hudGfx.fillRect(20, 40, 200 * stPct, 10);
+    this.hudGfx.fillRect(margin, stY, barW * stPct, stH);
 
     if (this.player.isBlocking) {
       this.hudGfx.fillStyle(this.player.isParrying ? 0xffd700 : 0x42a5f5);
-      this.hudGfx.fillRect(20, 58, 24, 14);
+      this.hudGfx.fillRect(margin, blockY, 24 * s, 14 * s);
     }
   }
 }

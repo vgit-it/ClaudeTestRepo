@@ -66,6 +66,7 @@ export class Enemy extends Character {
   readonly sprite: Phaser.Physics.Arcade.Sprite;
   readonly params: EnemyParams;
   private readonly spriteScale: number;
+  private readonly gameScale: number;
   private readonly player: Player;
   private spriteCtrl: SpriteController;
   private hpBarGfx: Phaser.GameObjects.Graphics;
@@ -74,11 +75,12 @@ export class Enemy extends Character {
   private attackHitDealt = false;
   private cooldownTimer = 0;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, player: Player, params: EnemyParams = ENEMY_DEFAULT_PARAMS, spriteScale = 1) {
+  constructor(scene: Phaser.Scene, x: number, y: number, player: Player, params: EnemyParams = ENEMY_DEFAULT_PARAMS, spriteScale = 1, gameScale = 1) {
     super(params.maxHp, 0);
     this.player = player;
     this.params = params;
     this.spriteScale = spriteScale;
+    this.gameScale = gameScale;
     this.sprite = scene.physics.add.sprite(x, y, 'char_walk', 0);
     this.sprite.setScale(spriteScale);
     this.spriteCtrl = new SpriteController(this.sprite);
@@ -169,14 +171,14 @@ export class Enemy extends Character {
 
     this.facing = this.computeDir(dx, dy);
 
-    if (dist <= this.params.attackRange && this.cooldownTimer <= 0) {
+    if (dist <= this.params.attackRange * this.gameScale && this.cooldownTimer <= 0) {
       this.sprite.setVelocity(0, 0);
       this.spriteCtrl.update(0, 0, false);
       this.combatState = 'windup';
       this.stateTimer = this.params.telegraphMs;
       this.attackHitDealt = false;
-    } else if (dist <= this.params.chaseRange) {
-      this.sprite.setVelocity((dx / dist) * this.params.moveSpeed, (dy / dist) * this.params.moveSpeed);
+    } else if (dist <= this.params.chaseRange * this.gameScale) {
+      this.sprite.setVelocity((dx / dist) * this.params.moveSpeed * this.gameScale, (dy / dist) * this.params.moveSpeed * this.gameScale);
       this.spriteCtrl.update(dx / dist, dy / dist, true);
     } else {
       this.sprite.setVelocity(0, 0);
@@ -214,14 +216,17 @@ export class Enemy extends Character {
   }
 
   private drawHpBar(): void {
-    const x = this.sprite.x - BAR_W / 2;
-    const y = this.sprite.y - BAR_OFFSET_Y;
+    const bw = BAR_W * this.spriteScale;
+    const bh = BAR_H * this.spriteScale;
+    const offset = BAR_OFFSET_Y * this.spriteScale;
+    const x = this.sprite.x - bw / 2;
+    const y = this.sprite.y - offset;
     const pct = this.hp / this.maxHp;
 
     this.hpBarGfx.clear();
     this.hpBarGfx.fillStyle(0x222222);
-    this.hpBarGfx.fillRect(x, y, BAR_W, BAR_H);
+    this.hpBarGfx.fillRect(x, y, bw, bh);
     this.hpBarGfx.fillStyle(0xe53935);
-    this.hpBarGfx.fillRect(x, y, BAR_W * pct, BAR_H);
+    this.hpBarGfx.fillRect(x, y, bw * pct, bh);
   }
 }
