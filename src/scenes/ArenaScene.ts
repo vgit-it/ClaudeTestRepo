@@ -36,6 +36,10 @@ export class ArenaScene extends Phaser.Scene {
 
     this.player = new Player(this, this.arenaCx, this.arenaCy);
     this.enemies = [new Enemy(this, this.arenaCx + 160, this.arenaCy, this.player)];
+
+    this.player.sprite.setScale(imgScale);
+    for (const enemy of this.enemies) enemy.sprite.setScale(imgScale);
+
     this.combatSystem = new CombatSystem();
     this.hudGfx = this.add.graphics();
     this.debugGfx = this.add.graphics();
