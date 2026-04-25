@@ -198,15 +198,15 @@ export class Enemy extends Character {
     } else if (this.combatState === 'windup') {
       this.sprite.setTint(0xffeb3b);
       this.spriteCtrl.setDir(this.facing);
-      this.spriteCtrl.playAction('atk');
+      this.spriteCtrl.playAction('windup');
     } else if (this.combatState === 'active') {
       this.sprite.setTint(0xff5722);
       this.spriteCtrl.setDir(this.facing);
-      this.spriteCtrl.playAction('atk');
+      this.spriteCtrl.playAction('hit');
     } else if (this.combatState === 'recovery') {
       this.sprite.setTint(0xffffff);
       this.spriteCtrl.setDir(this.facing);
-      this.spriteCtrl.playAction('atk');
+      this.spriteCtrl.playAction('hit');
     } else if (this.combatState === 'staggered') {
       this.sprite.setTint(0x9c27b0);
       this.spriteCtrl.update(0, 0, false);
