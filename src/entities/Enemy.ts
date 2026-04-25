@@ -172,7 +172,7 @@ export class Enemy extends Character {
 
   private computeDir(dx: number, dy: number): Direction {
     const a = ((Phaser.Math.RadToDeg(Math.atan2(dy, dx)) % 360) + 360) % 360;
-    const remap: Direction[] = [2, 1, 0, 7, 6, 5, 4, 3];
+    const remap: Direction[] = [2, 3, 4, 5, 6, 7, 0, 1];
     return remap[Math.round(a / 45) % 8];
   }
 

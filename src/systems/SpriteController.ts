@@ -1,13 +1,13 @@
 import Phaser from 'phaser';
 
-// Direction indices matching spritesheet rows: S=0, SE=1, E=2, NE=3, N=4, NW=5, W=6, SW=7
+// Direction indices matching spritesheet rows: N=0, NE=1, E=2, SE=3, S=4, SW=5, W=6, NW=7
 export type Direction = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 function angleToDir(angleDeg: number): Direction {
   const a = ((angleDeg % 360) + 360) % 360;
   const index = Math.round(a / 45) % 8;
-  // atan2 y-down: 0°=E, 90°=S, 180°=W, 270°=N → remap to S=0,SE=1,E=2,...
-  const remap: Direction[] = [2, 1, 0, 7, 6, 5, 4, 3];
+  // atan2 y-down: index 0=E,1=SE,2=S,3=SW,4=W,5=NW,6=N,7=NE → sheet rows N=0,NE=1,E=2,SE=3,S=4,SW=5,W=6,NW=7
+  const remap: Direction[] = [2, 3, 4, 5, 6, 7, 0, 1];
   return remap[index];
 }
 
