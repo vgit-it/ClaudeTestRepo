@@ -99,8 +99,8 @@ export class Enemy extends Character {
   }
 
   hurtRect(): Phaser.Geom.Rectangle {
-    const w = 60 * this.spriteScale;
-    const h = 100 * this.spriteScale;
+    const w = 30 * this.spriteScale;
+    const h = 50 * this.spriteScale;
     return new Phaser.Geom.Rectangle(this.sprite.x - w / 2, this.sprite.y - h / 2, w, h);
   }
 
