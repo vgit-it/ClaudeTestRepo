@@ -3,9 +3,10 @@ import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 import { CombatSystem } from '../systems/CombatSystem';
 
+const IMAGE_SIZE      = 1254;
+const CIRCLE_FRACTION = 0.80; // inner stone-ring edge as fraction of image half-size; tune if needed
 const ARENA_CX = 640;
 const ARENA_CY = 360;
-const ARENA_RADIUS = 300;
 
 export class ArenaScene extends Phaser.Scene {
   private player!: Player;
@@ -13,13 +14,20 @@ export class ArenaScene extends Phaser.Scene {
   private combatSystem!: CombatSystem;
   private hudGfx!: Phaser.GameObjects.Graphics;
   private debugGfx!: Phaser.GameObjects.Graphics;
+  private arenaRadius!: number;
 
   constructor() {
     super({ key: 'ArenaScene' });
   }
 
   create(): void {
-    this.drawArena();
+    const imgScale = this.scale.height / IMAGE_SIZE;
+    this.arenaRadius = (IMAGE_SIZE / 2) * CIRCLE_FRACTION * imgScale;
+
+    const bg = this.add.image(ARENA_CX, ARENA_CY, 'arena_bg');
+    bg.setScale(imgScale);
+    bg.setDepth(-1);
+
     this.player = new Player(this, ARENA_CX, ARENA_CY);
     this.enemies = [new Enemy(this, ARENA_CX + 160, ARENA_CY, this.player)];
     this.combatSystem = new CombatSystem();
@@ -31,8 +39,30 @@ export class ArenaScene extends Phaser.Scene {
     this.player.update(delta);
     for (const enemy of this.enemies) enemy.update(delta);
     this.combatSystem.update(this.player, this.enemies);
+
+    this.clampToArena(this.player.sprite);
+    for (const enemy of this.enemies) this.clampToArena(enemy.sprite);
+
     this.drawDebugHitbox();
     this.drawHud();
+  }
+
+  private clampToArena(sprite: Phaser.Physics.Arcade.Sprite): void {
+    const dx = sprite.x - ARENA_CX;
+    const dy = sprite.y - ARENA_CY;
+    const dist = Math.hypot(dx, dy);
+    if (dist > this.arenaRadius) {
+      sprite.x = ARENA_CX + (dx / dist) * this.arenaRadius;
+      sprite.y = ARENA_CY + (dy / dist) * this.arenaRadius;
+      const body = sprite.body as Phaser.Physics.Arcade.Body;
+      const radialVel = (body.velocity.x * dx + body.velocity.y * dy) / dist;
+      if (radialVel > 0) {
+        body.setVelocity(
+          body.velocity.x - radialVel * (dx / dist),
+          body.velocity.y - radialVel * (dy / dist),
+        );
+      }
+    }
   }
 
   private drawDebugHitbox(): void {
@@ -69,21 +99,5 @@ export class ArenaScene extends Phaser.Scene {
       this.hudGfx.fillStyle(this.player.isParrying ? 0xffd700 : 0x42a5f5);
       this.hudGfx.fillRect(20, 58, 24, 14);
     }
-  }
-
-  private drawArena(): void {
-    const gfx = this.add.graphics();
-
-    gfx.fillStyle(0x5d4037, 1);
-    gfx.fillCircle(ARENA_CX, ARENA_CY, ARENA_RADIUS);
-
-    gfx.lineStyle(8, 0x8d6e63, 1);
-    gfx.strokeCircle(ARENA_CX, ARENA_CY, ARENA_RADIUS);
-
-    gfx.lineStyle(2, 0x6d4c41, 0.5);
-    gfx.strokeCircle(ARENA_CX, ARENA_CY, ARENA_RADIUS - 20);
-
-    gfx.fillStyle(0x6d4c41, 0.4);
-    gfx.fillCircle(ARENA_CX, ARENA_CY, 40);
   }
 }
