@@ -4,8 +4,6 @@ import { ArenaScene } from './scenes/ArenaScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 1280,
-  height: 720,
   backgroundColor: '#1a1a2e',
   physics: {
     default: 'arcade',
@@ -13,7 +11,7 @@ const config: Phaser.Types.Core.GameConfig = {
   },
   scene: [BootScene, ArenaScene],
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
 };
