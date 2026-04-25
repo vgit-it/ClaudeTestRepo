@@ -27,7 +27,7 @@ export class ArenaScene extends Phaser.Scene {
     this.arenaCy = H / 2;
 
     // portrait: fill width; landscape: fill height — single formula covers both
-    const imgScale = Math.min(W, H) / IMAGE_SIZE;
+    const imgScale = Math.min(W, H) / IMAGE_SIZE * 1.5;
     this.arenaRadius = (IMAGE_SIZE / 2) * CIRCLE_FRACTION * imgScale;
 
     const bg = this.add.image(this.arenaCx, this.arenaCy, 'arena_bg');
