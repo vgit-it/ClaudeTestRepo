@@ -21,16 +21,16 @@ const DODGE_SPEED = 450;
 const HITBOX_REACH = 52;
 const HITBOX_SIZE = 44;
 
-// Normalized direction vectors matching spritesheet row order: S SE E NE N NW W SW
+// Normalized direction vectors matching spritesheet row order: N NE E SE S SW W NW
 const DIR_OFFSETS = [
-  { x: 0, y: 1 },
-  { x: 0.707, y: 0.707 },
-  { x: 1, y: 0 },
-  { x: 0.707, y: -0.707 },
   { x: 0, y: -1 },
-  { x: -0.707, y: -0.707 },
-  { x: -1, y: 0 },
+  { x: 0.707, y: -0.707 },
+  { x: 1, y: 0 },
+  { x: 0.707, y: 0.707 },
+  { x: 0, y: 1 },
   { x: -0.707, y: 0.707 },
+  { x: -1, y: 0 },
+  { x: -0.707, y: -0.707 },
 ];
 
 export class Player extends Character {

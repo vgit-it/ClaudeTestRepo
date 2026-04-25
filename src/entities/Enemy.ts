@@ -11,15 +11,16 @@ const BAR_OFFSET_Y = 46;
 const HITBOX_REACH = 52;
 const HITBOX_SIZE = 44;
 
+// N NE E SE S SW W NW
 const DIR_OFFSETS = [
-  { x: 0, y: 1 },
-  { x: 0.707, y: 0.707 },
-  { x: 1, y: 0 },
-  { x: 0.707, y: -0.707 },
   { x: 0, y: -1 },
-  { x: -0.707, y: -0.707 },
-  { x: -1, y: 0 },
+  { x: 0.707, y: -0.707 },
+  { x: 1, y: 0 },
+  { x: 0.707, y: 0.707 },
+  { x: 0, y: 1 },
   { x: -0.707, y: 0.707 },
+  { x: -1, y: 0 },
+  { x: -0.707, y: -0.707 },
 ] as const;
 
 export interface EnemyParams {
@@ -105,9 +106,11 @@ export class Enemy extends Character {
     super.takeDamage(amount);
     this.hitTimer = HIT_FLASH_MS;
     if (!this.isAlive()) {
-      this.spriteCtrl.playAction('death');
-      this.sprite.setActive(false);
       this.hpBarGfx.setVisible(false);
+      this.spriteCtrl.playAction('death');
+      this.sprite.once('animationcomplete', () => {
+        this.sprite.setActive(false).setVisible(false);
+      });
     }
   }
 
