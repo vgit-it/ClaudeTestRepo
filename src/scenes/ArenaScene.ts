@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { Player } from '../entities/Player';
 import { Enemy, ENEMY_DEFAULT_PARAMS, EnemyParams } from '../entities/Enemy';
 import { CombatSystem } from '../systems/CombatSystem';
+import { TouchControls } from '../systems/TouchControls';
 
 const IMAGE_SIZE      = 1254;
 const CIRCLE_FRACTION = 0.80; // inner stone-ring edge as fraction of image half-size; tune if needed
@@ -48,13 +49,14 @@ export class ArenaScene extends Phaser.Scene {
     bg.setScale(imgScale);
     bg.setDepth(-1);
 
-    const spriteScale = imgScale * 1.5;
+    const spriteScale = imgScale * 2;
     const round = this.game.registry.get('round') ?? 1;
     const params = buildParams(round);
     const enemyCount = round >= 5 ? 3 : round >= 3 ? 2 : 1;
     const spawnDist = this.arenaRadius * 0.5;
 
     this.player = new Player(this, this.arenaCx, this.arenaCy, spriteScale, spriteScale);
+    new TouchControls(this, this.player.inputController);
 
     this.enemies = [];
     for (let i = 0; i < enemyCount; i++) {

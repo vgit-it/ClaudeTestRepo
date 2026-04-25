@@ -7,6 +7,7 @@ import { GameOverScene } from './scenes/GameOverScene';
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   backgroundColor: '#1a1a2e',
+  input: { activePointers: 4 },
   physics: {
     default: 'arcade',
     arcade: { debug: false },
