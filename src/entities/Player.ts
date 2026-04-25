@@ -54,6 +54,7 @@ export class Player extends Character {
     this.spriteCtrl = new SpriteController(this.sprite);
   }
 
+  get inputController(): InputController { return this.input; }
   get isInvincible(): boolean { return this.iframeTimer > 0; }
   get isBlocking(): boolean { return this.combatState === 'blocking' || this.combatState === 'parrying'; }
   get isParrying(): boolean { return this.combatState === 'parrying'; }
