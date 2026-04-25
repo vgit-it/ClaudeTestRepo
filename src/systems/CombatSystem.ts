@@ -24,7 +24,7 @@ export class CombatSystem {
     } else if (!this.hitDealt) {
       for (const enemy of enemies) {
         if (!enemy.isAlive()) continue;
-        if (Phaser.Geom.Intersects.RectangleToRectangle(rect, enemy.sprite.getBounds())) {
+        if (Phaser.Geom.Intersects.RectangleToRectangle(rect, enemy.hurtRect())) {
           enemy.takeDamage(ATTACK_DAMAGE);
           this.hitDealt = true;
           break;
@@ -38,7 +38,7 @@ export class CombatSystem {
         if (!enemy.isAlive()) continue;
         const eRect = enemy.getAttackRect();
         if (!eRect) continue;
-        if (Phaser.Geom.Intersects.RectangleToRectangle(eRect, player.sprite.getBounds())) {
+        if (Phaser.Geom.Intersects.RectangleToRectangle(eRect, player.hurtRect())) {
           const wasParried = this.resolvePlayerHit(player, enemy.attackDamage);
           enemy.registerHit(wasParried);
         }

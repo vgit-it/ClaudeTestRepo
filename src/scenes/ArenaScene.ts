@@ -35,11 +35,9 @@ export class ArenaScene extends Phaser.Scene {
     bg.setScale(imgScale);
     bg.setDepth(-1);
 
-    this.player = new Player(this, this.arenaCx, this.arenaCy);
-    this.enemies = [new Enemy(this, this.arenaCx + 160, this.arenaCy, this.player)];
-
-    this.player.sprite.setScale(imgScale * 1);
-    for (const enemy of this.enemies) enemy.sprite.setScale(imgScale * 1);
+    const spriteScale = imgScale * 1.25;
+    this.player = new Player(this, this.arenaCx, this.arenaCy, spriteScale);
+    this.enemies = [new Enemy(this, this.arenaCx + 160, this.arenaCy, this.player, undefined, spriteScale)];
 
     this.combatSystem = new CombatSystem();
     this.hudGfx = this.add.graphics();
@@ -93,14 +91,14 @@ export class ArenaScene extends Phaser.Scene {
     this.debugGfx.clear();
     if (!this.hitboxVisible) return;
 
-    // Hurtboxes — sprite.getBounds() is what CombatSystem uses for hit detection
-    const pb = this.player.sprite.getBounds();
+    // Hurtboxes — 60×100 centred on sprite, what CombatSystem checks
+    const pb = this.player.hurtRect();
     this.debugGfx.lineStyle(2, 0x00e676, 0.9);
     this.debugGfx.strokeRect(pb.x, pb.y, pb.width, pb.height);
 
     for (const enemy of this.enemies) {
       if (!enemy.isAlive()) continue;
-      const eb = enemy.sprite.getBounds();
+      const eb = enemy.hurtRect();
       this.debugGfx.lineStyle(2, 0x40c4ff, 0.9);
       this.debugGfx.strokeRect(eb.x, eb.y, eb.width, eb.height);
     }

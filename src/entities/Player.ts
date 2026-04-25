@@ -35,6 +35,7 @@ const DIR_OFFSETS = [
 
 export class Player extends Character {
   readonly sprite: Phaser.Physics.Arcade.Sprite;
+  private readonly spriteScale: number;
   private input: InputController;
   private spriteCtrl: SpriteController;
   private dodgeVx = 0;
@@ -42,9 +43,11 @@ export class Player extends Character {
   private iframeTimer = 0;
   private parrySuccessTimer = 0;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(scene: Phaser.Scene, x: number, y: number, spriteScale = 1) {
     super(100, 100);
+    this.spriteScale = spriteScale;
     this.sprite = scene.physics.add.sprite(x, y, 'char_walk', 0);
+    this.sprite.setScale(spriteScale);
     this.input = new InputController(scene);
     this.spriteCtrl = new SpriteController(this.sprite);
   }
@@ -116,9 +119,17 @@ export class Player extends Character {
   getAttackRect(): Phaser.Geom.Rectangle | null {
     if (this.combatState !== 'active') return null;
     const off = DIR_OFFSETS[this.spriteCtrl.getDir()];
-    const cx = this.sprite.x + off.x * HITBOX_REACH;
-    const cy = this.sprite.y + off.y * HITBOX_REACH;
-    return new Phaser.Geom.Rectangle(cx - HITBOX_SIZE / 2, cy - HITBOX_SIZE / 2, HITBOX_SIZE, HITBOX_SIZE);
+    const reach = HITBOX_REACH * this.spriteScale;
+    const size  = HITBOX_SIZE  * this.spriteScale;
+    const cx = this.sprite.x + off.x * reach;
+    const cy = this.sprite.y + off.y * reach;
+    return new Phaser.Geom.Rectangle(cx - size / 2, cy - size / 2, size, size);
+  }
+
+  hurtRect(): Phaser.Geom.Rectangle {
+    const w = 60 * this.spriteScale;
+    const h = 100 * this.spriteScale;
+    return new Phaser.Geom.Rectangle(this.sprite.x - w / 2, this.sprite.y - h / 2, w, h);
   }
 
   private startDodge(): void {
