@@ -12,6 +12,8 @@ const config: Phaser.Types.Core.GameConfig = {
   scene: [BootScene, ArenaScene],
   scale: {
     mode: Phaser.Scale.RESIZE,
+    width: window.innerWidth,
+    height: window.innerHeight,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
 };
