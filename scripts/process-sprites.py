@@ -32,13 +32,6 @@ def remove_bg(frame: np.ndarray) -> np.ndarray:
     near_white = (r > 210) & (g > 210) & (b > 210)
     frame[adj & ~transparent & near_white, 3] = 0
 
-    # Zero out RGB of all transparent pixels so WebGL bilinear filtering
-    # cannot bleed the original white background colour into opaque neighbours.
-    fully_transparent = frame[:, :, 3] == 0
-    frame[fully_transparent, 0] = 0
-    frame[fully_transparent, 1] = 0
-    frame[fully_transparent, 2] = 0
-
     return frame
 
 for out_name, (src_file, cols) in sheets.items():
