@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { ArenaScene } from './scenes/ArenaScene';
+import { WinScene } from './scenes/WinScene';
+import { GameOverScene } from './scenes/GameOverScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -9,7 +11,7 @@ const config: Phaser.Types.Core.GameConfig = {
     default: 'arcade',
     arcade: { debug: false },
   },
-  scene: [BootScene, ArenaScene],
+  scene: [BootScene, ArenaScene, WinScene, GameOverScene],
   scale: {
     mode: Phaser.Scale.RESIZE,
     width: window.innerWidth,

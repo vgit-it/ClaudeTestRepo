@@ -112,7 +112,11 @@ export class Player extends Character {
     } else {
       // windup / active / recovery
       this.sprite.setVelocity(0, 0);
-      this.spriteCtrl.playAction('atk');
+      if (this.combatState === 'windup') {
+        this.spriteCtrl.playAction('windup');
+      } else {
+        this.spriteCtrl.playAction('hit');
+      }
     }
 
     this.applyVisuals();
