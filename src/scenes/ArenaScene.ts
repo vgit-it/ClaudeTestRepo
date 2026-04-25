@@ -5,8 +5,6 @@ import { CombatSystem } from '../systems/CombatSystem';
 
 const IMAGE_SIZE      = 1254;
 const CIRCLE_FRACTION = 0.80; // inner stone-ring edge as fraction of image half-size; tune if needed
-const ARENA_CX = 640;
-const ARENA_CY = 360;
 
 export class ArenaScene extends Phaser.Scene {
   private player!: Player;
@@ -14,6 +12,8 @@ export class ArenaScene extends Phaser.Scene {
   private combatSystem!: CombatSystem;
   private hudGfx!: Phaser.GameObjects.Graphics;
   private debugGfx!: Phaser.GameObjects.Graphics;
+  private arenaCx!: number;
+  private arenaCy!: number;
   private arenaRadius!: number;
 
   constructor() {
@@ -21,15 +21,21 @@ export class ArenaScene extends Phaser.Scene {
   }
 
   create(): void {
-    const imgScale = this.scale.height / IMAGE_SIZE;
+    const W = this.scale.width;
+    const H = this.scale.height;
+    this.arenaCx = W / 2;
+    this.arenaCy = H / 2;
+
+    // portrait: fill width; landscape: fill height — single formula covers both
+    const imgScale = Math.min(W, H) / IMAGE_SIZE;
     this.arenaRadius = (IMAGE_SIZE / 2) * CIRCLE_FRACTION * imgScale;
 
-    const bg = this.add.image(ARENA_CX, ARENA_CY, 'arena_bg');
+    const bg = this.add.image(this.arenaCx, this.arenaCy, 'arena_bg');
     bg.setScale(imgScale);
     bg.setDepth(-1);
 
-    this.player = new Player(this, ARENA_CX, ARENA_CY);
-    this.enemies = [new Enemy(this, ARENA_CX + 160, ARENA_CY, this.player)];
+    this.player = new Player(this, this.arenaCx, this.arenaCy);
+    this.enemies = [new Enemy(this, this.arenaCx + 160, this.arenaCy, this.player)];
     this.combatSystem = new CombatSystem();
     this.hudGfx = this.add.graphics();
     this.debugGfx = this.add.graphics();
@@ -48,12 +54,12 @@ export class ArenaScene extends Phaser.Scene {
   }
 
   private clampToArena(sprite: Phaser.Physics.Arcade.Sprite): void {
-    const dx = sprite.x - ARENA_CX;
-    const dy = sprite.y - ARENA_CY;
+    const dx = sprite.x - this.arenaCx;
+    const dy = sprite.y - this.arenaCy;
     const dist = Math.hypot(dx, dy);
     if (dist > this.arenaRadius) {
-      sprite.x = ARENA_CX + (dx / dist) * this.arenaRadius;
-      sprite.y = ARENA_CY + (dy / dist) * this.arenaRadius;
+      sprite.x = this.arenaCx + (dx / dist) * this.arenaRadius;
+      sprite.y = this.arenaCy + (dy / dist) * this.arenaRadius;
       const body = sprite.body as Phaser.Physics.Arcade.Body;
       const radialVel = (body.velocity.x * dx + body.velocity.y * dy) / dist;
       if (radialVel > 0) {
