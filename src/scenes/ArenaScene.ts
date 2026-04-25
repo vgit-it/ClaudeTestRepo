@@ -38,8 +38,8 @@ export class ArenaScene extends Phaser.Scene {
     bg.setDepth(-1);
 
     const spriteScale = imgScale * 1.25;
-    this.player = new Player(this, this.arenaCx, this.arenaCy, spriteScale, imgScale);
-    this.enemies = [new Enemy(this, this.arenaCx + 160 * imgScale, this.arenaCy, this.player, undefined, spriteScale, imgScale)];
+    this.player = new Player(this, this.arenaCx, this.arenaCy, spriteScale, spriteScale);
+    this.enemies = [new Enemy(this, this.arenaCx + 160 * spriteScale, this.arenaCy, this.player, undefined, spriteScale, spriteScale)];
 
     this.combatSystem = new CombatSystem();
     this.hudGfx = this.add.graphics();
