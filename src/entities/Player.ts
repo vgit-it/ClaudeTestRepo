@@ -45,7 +45,6 @@ export class Player extends Character {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(100, 100);
     this.sprite = scene.physics.add.sprite(x, y, 'char_walk', 0);
-    this.sprite.setCollideWorldBounds(true);
     this.input = new InputController(scene);
     this.spriteCtrl = new SpriteController(this.sprite);
   }

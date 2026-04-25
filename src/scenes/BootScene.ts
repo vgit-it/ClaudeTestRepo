@@ -6,6 +6,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
+    this.load.image('arena_bg', 'assets/arena_bg.png');
     const config = { frameWidth: 138, frameHeight: 111 };
     this.load.spritesheet('char_walk',  'assets/sprites/char_walk.png',  config);
     this.load.spritesheet('char_atk',   'assets/sprites/char_atk.png',   config);
