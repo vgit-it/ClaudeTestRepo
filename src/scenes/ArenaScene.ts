@@ -21,7 +21,6 @@ export class ArenaScene extends Phaser.Scene {
   private combatSystem!: CombatSystem;
   private hudGfx!: Phaser.GameObjects.Graphics;
   private debugGfx!: Phaser.GameObjects.Graphics;
-  private roundText!: Phaser.GameObjects.Text;
   private arenaCx!: number;
   private arenaCy!: number;
   private arenaRadius!: number;
@@ -69,7 +68,7 @@ export class ArenaScene extends Phaser.Scene {
     this.hudGfx = this.add.graphics();
     this.debugGfx = this.add.graphics();
 
-    this.roundText = this.add.text(W / 2, 10, `Round ${round}`, {
+    this.add.text(W / 2, 10, `Round ${round}`, {
       fontSize: `${Math.round(16 * imgScale)}px`,
       color: '#ffffff',
     }).setOrigin(0.5, 0).setDepth(10);
