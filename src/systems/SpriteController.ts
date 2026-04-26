@@ -21,6 +21,7 @@ export class SpriteController {
   constructor(sprite: Phaser.GameObjects.Sprite) {
     this.sprite = sprite;
     this.registerAnims();
+    sprite.setCrop(2, 2, 134, 107);
   }
 
   private registerAnims(): void {
