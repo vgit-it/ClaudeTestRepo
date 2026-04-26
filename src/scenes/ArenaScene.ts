@@ -26,6 +26,7 @@ export class ArenaScene extends Phaser.Scene {
   private arenaCy!: number;
   private arenaRadius!: number;
   private imgScale!: number;
+  private spriteScale!: number;
   private hitboxVisible = false;
   private roundOver = false;
 
@@ -49,7 +50,8 @@ export class ArenaScene extends Phaser.Scene {
     bg.setScale(imgScale);
     bg.setDepth(-1);
 
-    const spriteScale = imgScale * 2;
+    this.spriteScale = imgScale * 2;
+    const spriteScale = this.spriteScale;
     const round = this.game.registry.get('round') ?? 1;
     const params = buildParams(round);
     const enemyCount = round >= 5 ? 3 : round >= 3 ? 2 : 1;
@@ -98,6 +100,7 @@ export class ArenaScene extends Phaser.Scene {
     for (const enemy of this.enemies) enemy.update(delta);
     this.combatSystem.update(this.player, this.enemies);
 
+    this.separateCharacters();
     this.clampToArena(this.player.sprite);
     for (const enemy of this.enemies) this.clampToArena(enemy.sprite);
 
@@ -112,6 +115,50 @@ export class ArenaScene extends Phaser.Scene {
     if (!this.roundOver && this.player.hp <= 0) {
       this.roundOver = true;
       this.time.delayedCall(800, () => this.scene.start('GameOverScene'));
+    }
+  }
+
+  private separateCharacters(): void {
+    const BUFFER = 5 * this.spriteScale;
+    const chars = [
+      { sprite: this.player.sprite, rect: this.player.hurtRect() },
+      ...this.enemies
+        .filter(e => e.isAlive())
+        .map(e => ({ sprite: e.sprite, rect: e.hurtRect() })),
+    ];
+
+    for (let i = 0; i < chars.length; i++) {
+      for (let j = i + 1; j < chars.length; j++) {
+        const a = chars[i];
+        const b = chars[j];
+
+        const radA = Math.max(a.rect.width, a.rect.height) / 2 + BUFFER;
+        const radB = Math.max(b.rect.width, b.rect.height) / 2 + BUFFER;
+        const minDist = radA + radB;
+
+        const dx = b.sprite.x - a.sprite.x;
+        const dy = b.sprite.y - a.sprite.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < minDist && dist > 0) {
+          const overlap = minDist - dist;
+          const nx = dx / dist;
+          const ny = dy / dist;
+
+          a.sprite.x -= nx * overlap * 0.5;
+          a.sprite.y -= ny * overlap * 0.5;
+          b.sprite.x += nx * overlap * 0.5;
+          b.sprite.y += ny * overlap * 0.5;
+
+          // Dampen velocity pushing into the overlap (mirrors clampToArena)
+          const bodyA = a.sprite.body as Phaser.Physics.Arcade.Body;
+          const bodyB = b.sprite.body as Phaser.Physics.Arcade.Body;
+          const rvA = bodyA.velocity.x * nx + bodyA.velocity.y * ny;
+          if (rvA > 0) bodyA.setVelocity(bodyA.velocity.x - rvA * nx, bodyA.velocity.y - rvA * ny);
+          const rvB = -(bodyB.velocity.x * nx + bodyB.velocity.y * ny);
+          if (rvB > 0) bodyB.setVelocity(bodyB.velocity.x + rvB * nx, bodyB.velocity.y + rvB * ny);
+        }
+      }
     }
   }
 
