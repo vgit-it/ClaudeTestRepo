@@ -67,6 +67,7 @@ export class ArenaScene extends Phaser.Scene {
       const y = this.arenaCy + Math.sin(angle) * spawnDist;
       this.enemies.push(new Enemy(this, x, y, this.player, params, spriteScale, spriteScale));
     }
+    this.player.setEnemies(this.enemies);
 
     this.combatSystem = new CombatSystem();
     this.hudGfx = this.add.graphics();
