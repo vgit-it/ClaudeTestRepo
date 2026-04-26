@@ -30,7 +30,7 @@ export class SpriteController {
     for (let dir = 0; dir < 8; dir++) {
       mgr.create({ key: `idle_${dir}`,  frames: frames('char_walk', 14, dir,  5, 9), frameRate:  6, repeat: -1 });
       mgr.create({ key: `walk_${dir}`,  frames: frames('char_walk', 14, dir,  9, 0), frameRate: 12, repeat: -1 });
-      mgr.create({ key: `windup_${dir}`, frames: frames('char_atk',   14, dir,  7, 0), frameRate: 12, repeat: -1 });
+      mgr.create({ key: `windup_${dir}`, frames: frames('char_atk',   14, dir,  2, 0), frameRate: 12, repeat:  0 });
       mgr.create({ key: `hit_${dir}`,    frames: frames('char_atk',   14, dir,  7, 7), frameRate: 16, repeat:  0 });
       mgr.create({ key: `block_${dir}`, frames: frames('char_block', 10, dir, 10), frameRate:  8, repeat: -1 });
       mgr.create({ key: `death_${dir}`, frames: frames('char_death', 11, dir, 11), frameRate:  8, repeat:  0 });
@@ -49,7 +49,9 @@ export class SpriteController {
   }
 
   playAction(action: 'windup' | 'hit' | 'block' | 'death'): void {
-    this.sprite.play(`${action}_${this.currentDir}`, true);
+    const key = `${action}_${this.currentDir}`;
+    if (this.sprite.anims.currentAnim?.key === key) return;
+    this.sprite.play(key);
   }
 
   setDir(dir: Direction): void {
