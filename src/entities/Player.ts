@@ -17,7 +17,7 @@ const DODGE_MS = 380;
 const IFRAMES_MS = 167;     // ~10 frames at 60fps
 const PARRY_MS = 200;       // ~12 frames — active parry window
 const PARRY_FLASH_MS = 300; // success flash duration (triggered by CombatSystem in Step 5)
-const DODGE_SPEED = 225;
+const DODGE_SPEED = 112;
 const HITBOX_REACH = 52;
 const HITBOX_SIZE = 44;
 

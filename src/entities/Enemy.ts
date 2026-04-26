@@ -5,6 +5,7 @@ import { SpriteController } from '../systems/SpriteController';
 import type { Direction } from '../systems/SpriteController';
 
 const HIT_FLASH_MS = 200;
+const ENEMY_BASE_TINT = 0x8899ff;
 const BAR_W = 60;
 const BAR_H = 6;
 const BAR_OFFSET_Y = 46;
@@ -195,23 +196,30 @@ export class Enemy extends Character {
   private applyVisuals(): void {
     if (this.hitTimer > 0) {
       this.sprite.setTint(0xff4444);
+      this.sprite.setAlpha(1);
     } else if (this.combatState === 'windup') {
-      this.sprite.setTint(0xffeb3b);
+      const pulse = 0.55 + 0.45 * Math.abs(Math.sin(this.sprite.scene.time.now * 0.008));
+      this.sprite.setTint(0xff2222);
+      this.sprite.setAlpha(pulse);
       this.spriteCtrl.setDir(this.facing);
       this.spriteCtrl.playAction('windup');
     } else if (this.combatState === 'active') {
       this.sprite.setTint(0xff5722);
+      this.sprite.setAlpha(1);
       this.spriteCtrl.setDir(this.facing);
       this.spriteCtrl.playAction('hit');
     } else if (this.combatState === 'recovery') {
-      this.sprite.setTint(0xffffff);
+      this.sprite.setTint(ENEMY_BASE_TINT);
+      this.sprite.setAlpha(1);
       this.spriteCtrl.setDir(this.facing);
       this.spriteCtrl.playAction('hit');
     } else if (this.combatState === 'staggered') {
       this.sprite.setTint(0x9c27b0);
+      this.sprite.setAlpha(1);
       this.spriteCtrl.update(0, 0, false);
     } else {
-      this.sprite.setTint(0xffffff);
+      this.sprite.setTint(ENEMY_BASE_TINT);
+      this.sprite.setAlpha(1);
     }
   }
 
