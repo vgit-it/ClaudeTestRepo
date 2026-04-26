@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Character } from './Character';
+import { Enemy } from './Enemy';
 import { InputController } from '../systems/InputController';
 import { SpriteController } from '../systems/SpriteController';
 
@@ -39,6 +40,7 @@ export class Player extends Character {
   private readonly gameScale: number;
   private input: InputController;
   private spriteCtrl: SpriteController;
+  private enemies: Enemy[] = [];
   private dodgeVx = 0;
   private dodgeVy = 0;
   private iframeTimer = 0;
@@ -55,6 +57,10 @@ export class Player extends Character {
   }
 
   get inputController(): InputController { return this.input; }
+
+  setEnemies(enemies: Enemy[]): void {
+    this.enemies = enemies;
+  }
   get isInvincible(): boolean { return this.iframeTimer > 0; }
   get isBlocking(): boolean { return this.combatState === 'blocking' || this.combatState === 'parrying'; }
   get isParrying(): boolean { return this.combatState === 'parrying'; }
@@ -78,7 +84,10 @@ export class Player extends Character {
     if (this.combatState === 'idle') {
       const { x, y } = this.input.getMoveVector();
       this.sprite.setVelocity(x * MOVE_SPEED * this.gameScale, y * MOVE_SPEED * this.gameScale);
-      this.spriteCtrl.update(x, y, this.input.isMoving());
+      const idleTarget = this.nearestAliveEnemy();
+      const fx = idleTarget ? (idleTarget.sprite.x - this.sprite.x) : x;
+      const fy = idleTarget ? (idleTarget.sprite.y - this.sprite.y) : y;
+      this.spriteCtrl.update(fx, fy, this.input.isMoving());
 
       if (this.input.consumeParry() && this.stamina >= PARRY_COST) {
         this.stamina -= PARRY_COST;
@@ -101,7 +110,12 @@ export class Player extends Character {
         this.stamina = Math.max(0, this.stamina - BLOCK_DRAIN * (delta / 1000));
         const { x, y } = this.input.getMoveVector();
         this.sprite.setVelocity(x * BLOCK_MOVE_SPEED * this.gameScale, y * BLOCK_MOVE_SPEED * this.gameScale);
-        if (x !== 0 || y !== 0) this.spriteCtrl.update(x, y, false);
+        const blockTarget = this.nearestAliveEnemy();
+        if (blockTarget) {
+          this.spriteCtrl.update(blockTarget.sprite.x - this.sprite.x, blockTarget.sprite.y - this.sprite.y, false);
+        } else if (x !== 0 || y !== 0) {
+          this.spriteCtrl.update(x, y, false);
+        }
         this.spriteCtrl.playAction('block');
       }
     } else if (this.combatState === 'parrying') {
@@ -171,6 +185,19 @@ export class Player extends Character {
     if (this.combatState === 'idle') {
       this.stamina = Math.min(this.maxStamina, this.stamina + STAMINA_REGEN * (delta / 1000));
     }
+  }
+
+  private nearestAliveEnemy(): Enemy | null {
+    let best: Enemy | null = null;
+    let bestDist = Infinity;
+    for (const e of this.enemies) {
+      if (!e.isAlive()) continue;
+      const dx = e.sprite.x - this.sprite.x;
+      const dy = e.sprite.y - this.sprite.y;
+      const d = Math.hypot(dx, dy);
+      if (d < bestDist) { bestDist = d; best = e; }
+    }
+    return best;
   }
 
   private applyVisuals(): void {

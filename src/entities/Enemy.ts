@@ -183,7 +183,7 @@ export class Enemy extends Character {
       this.spriteCtrl.update(dx / dist, dy / dist, true);
     } else {
       this.sprite.setVelocity(0, 0);
-      this.spriteCtrl.update(0, 0, false);
+      this.spriteCtrl.update(dx / dist, dy / dist, false);
     }
   }
 
