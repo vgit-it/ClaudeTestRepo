@@ -3,8 +3,8 @@ import { Character } from './Character';
 import { InputController } from '../systems/InputController';
 import { SpriteController } from '../systems/SpriteController';
 
-const MOVE_SPEED = 220;
-const BLOCK_MOVE_SPEED = 132; // 60% of MOVE_SPEED
+const MOVE_SPEED = 110;
+const BLOCK_MOVE_SPEED = 66; // 60% of MOVE_SPEED
 const ATTACK_COST = 25;
 const DODGE_COST = 30;
 const PARRY_COST = 20;
@@ -17,7 +17,7 @@ const DODGE_MS = 380;
 const IFRAMES_MS = 167;     // ~10 frames at 60fps
 const PARRY_MS = 200;       // ~12 frames — active parry window
 const PARRY_FLASH_MS = 300; // success flash duration (triggered by CombatSystem in Step 5)
-const DODGE_SPEED = 450;
+const DODGE_SPEED = 225;
 const HITBOX_REACH = 52;
 const HITBOX_SIZE = 44;
 
